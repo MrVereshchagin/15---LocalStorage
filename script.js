@@ -1,6 +1,6 @@
 const addItems = document.querySelector('.add-items');
 const itemsList = document.querySelector('.plates');
-const items = [];
+const items = JSON.parse(localStorage.getItem('items')) || [];
 
 function addItem(e) {
     // отменяем действие браузера по умолчанию, т.е. отправку формы
@@ -14,8 +14,12 @@ function addItem(e) {
 
     // пушим такие объекты в новый массив
     items.push(item);
-    // очищаем поле input
+    //применяем функцию populateList в контексте данной функции
     populateList(items, itemsList);
+    /*создаем локальное хранилище с ключем и значением преобразованным
+    в строку JSON, для дальнейшего преобразования в JS*/
+    localStorage.setItem('items', JSON.stringify(items));
+    // очищаем поле input
     this.reset();
 }
 
@@ -32,4 +36,16 @@ function populateList(plates = [], plateList) {
     }).join('');
 }
 
+function toggleDone(e) {
+    if (!e.target.matches('input')) return; // skip this unless it's an input
+    const el = e.target;
+    const index = el.dataset.index;
+    items[index].done = !items[index].done;
+    localStorage.setItem('items', JSON.stringify(items));
+    populateList(items, itemsList);
+}
+
 addItems.addEventListener('submit', addItem);
+itemsList.addEventListener('click', toggleDone);
+
+populateList(items, itemsList);
